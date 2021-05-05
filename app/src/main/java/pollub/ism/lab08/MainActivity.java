@@ -9,6 +9,9 @@ import androidx.room.Room;
 import pollub.ism.lab08.databinding.ActivityMainBinding;
 
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -75,9 +78,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void aktualizuj() {
         wybraneWarzywoIlosc = bazaDanych.pozycjaMagazynowaDAO().findQuantityByName(wybraneWarzywoNazwa);
-        String log = bazaDanych.actionLogDAO().getActionLogs().toString();
         binding.tekstStanMagazynu.setText("Stan magazynu dla " + wybraneWarzywoNazwa + " wynosi: " + wybraneWarzywoIlosc);
-        binding.logMagazynu.setText(log);
+
+        StringBuilder updateList = new StringBuilder();
+        for (ActionLog result : bazaDanych.actionLogDAO().findActionLogsByName(wybraneWarzywoNazwa)) {
+            updateList.append(String.format("%s, %s, %s\n", result.date, result.oldQuantity, result.newQuantity));
+        }
+        binding.logMagazynu.setText(updateList.toString());
     }
 
     private void zmienStan(OperacjaMagazynowa operacja) {
@@ -101,15 +108,19 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
+        bazaDanych.pozycjaMagazynowaDAO().updateQuantityByName(wybraneWarzywoNazwa, nowaIlosc);
+
         ActionLog log = new ActionLog();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
-        log.date = sdf.toString();
+
+        ZonedDateTime updateTime = ZonedDateTime.now(ZoneId.of("UTC+2"));
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss");
+
+        log.date = updateTime.format(timeFormatter);
         log.nazwaProduktu = wybraneWarzywoNazwa;
         log.newQuantity = nowaIlosc;
         log.oldQuantity = wybraneWarzywoIlosc;
         bazaDanych.actionLogDAO().insert(log);
 
-        bazaDanych.pozycjaMagazynowaDAO().updateQuantityByName(wybraneWarzywoNazwa, nowaIlosc);
 
         aktualizuj();
     }

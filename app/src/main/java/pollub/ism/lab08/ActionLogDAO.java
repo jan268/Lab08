@@ -16,7 +16,6 @@ public interface ActionLogDAO {
     @Query("SELECT COUNT(*) FROM ActionLog")
     int size();
 
-    @Transaction
-    @Query("SELECT * FROM Warzywniak")
-    public List<ActionLogPozycjaMagazynowa> getActionLogs();
+    @Query("SELECT * FROM ActionLog WHERE nazwaProduktu= :log")
+    List<ActionLog> findActionLogsByName(String log);
 }

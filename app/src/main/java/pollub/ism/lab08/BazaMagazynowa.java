@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase;
 public abstract class BazaMagazynowa extends RoomDatabase {
 
     public static final String NAZWA_BAZY = "Stoisko z warzywami";
-    public static final int WERSJA = 2;
+    public static final int WERSJA = 1;
 
     public abstract PozycjaMagazynowaDAO pozycjaMagazynowaDAO();
 
